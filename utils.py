@@ -1,15 +1,6 @@
 import pickle
 
 
-def reverse_label(label):
-    if label == 1:
-        return 0
-    elif label == 0:
-        return 1
-    else:
-        assert False
-
-
 def read_split(split_path):
     with open(split_path, 'rb') as handle:
         file = pickle.load(handle)

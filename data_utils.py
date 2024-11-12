@@ -117,14 +117,11 @@ class MyTripletDataset(Dataset):
         return len(self.triplet_pairs)
 
 
-def read_features(patient_list, patient_labels, feature_path_dict, comb_key):
+def read_features(patient_list, patient_labels, feature_path_dict):
     bags = []
     labels = []
 
     filename_list = []
-    
-    cnt0 = 0
-    cnt1 = 0
     
     for idx, patient_id in tqdm(enumerate(patient_list), total=len(patient_list)):
         label = patient_labels[patient_id]
@@ -140,12 +137,11 @@ def read_features(patient_list, patient_labels, feature_path_dict, comb_key):
             continue
         with open(pkl_path, 'rb') as handle:
             pkl_file = pickle.load(handle)
-            feature_dict = pkl_file['feature_dict']
+            feature_list = pkl_file['features']
             filenames = pkl_file['filenames']
         filename_list.append(filenames)
 
-        feat_list = get_combined_feature(feat_dict=feature_dict, comb_key=comb_key)
-        bags.append(np.array(feat_list))
+        bags.append(np.array(feature_list))
         labels.append(label)
         
     bags = np.array(bags, dtype=object)
@@ -157,49 +153,4 @@ def load_pkl(pkl_pth):
     with open(pkl_pth, 'rb') as handle:
         file = pickle.load(handle)
     return file
-
-
-feat_comb_dict = {
-    '5': ['5'], 
-    '11': ['11'], 
-    'cls_0': ['cls_0'], 
-    'cls_0_avg': ['cls_0_avg'], 
-    'cls_1': ['cls_1'],
-    'cls_1_avg': ['cls_1_avg'],
-
-    '5_11_concat': ['5', '11'],
-
-    'cls0_cls1_concat': ['cls_0', 'cls_1'],
-
-    'cls_block0_concat': ['cls_0', 'cls_0_avg'],
-    'cls_block1_concat': ['cls_1', 'cls_1_avg'],
-
-    'cls_block_all_concat': ['cls_0', 'cls_0_avg', 'cls_1', 'cls_1_avg'],
-
-    'all_concat': ['5', '11', 'cls_0', 'cls_0_avg', 'cls_1', 'cls_1_avg'],
-
-
-    # owkin/phiken
-    'cls_11': ['cls_11'],
-    'cls_11_avg': ['cls_11_avg'],
-    'cls_block5_concat': ['cls_5', 'cls_5_avg'],
-    'cls_block11_concat': ['cls_11', 'cls_11_avg'],
-}
-
-
-def get_combined_feature(feat_dict, comb_key):
-    if comb_key not in feat_comb_dict:
-        comb_list = [comb_key]
-    else:
-        comb_list = feat_comb_dict[comb_key]
-    feat_list = []
-    patch_len = len(feat_dict[comb_list[0]])
-    for patch_id in range(patch_len):
-        patch_feat_lst = []
-        for feat_key in comb_list:
-            assert feat_key in feat_dict
-            patch_feat_lst.append(feat_dict[feat_key][patch_id])
-        concat_feat = np.concatenate(patch_feat_lst, axis=0)
-        feat_list.append(concat_feat)
-    return feat_list
 

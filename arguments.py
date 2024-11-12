@@ -3,17 +3,13 @@ import argparse, os, shutil
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-pwd = os.path.dirname(os.path.realpath(__file__))
-
 # Experiment arguments
-parser.add_argument('--pwd', default=pwd, help='path of the current folder.')
 parser.add_argument('--split_path', default=f'', help='path to the file which contains the split of train and val.')
 parser.add_argument('--split_k', default=3, type=int)
 parser.add_argument('--exp_name', default='cervical', help='The name for this experiment')
 parser.add_argument('--feature_dict_str', default='')
 # Feature dict string is a string that follows this pattern: "dataset_key:path,dataset_key:path,..." when parsing, the code will check if a dataset_key is in the case_id.
-parser.add_argument('--output_dir', default=f'{pwd}/output/', help='The output path.') 
-parser.add_argument('--feat_comb', default=[''], nargs='+') 
+parser.add_argument('--output_dir', default=f'output/', help='The output path.') 
 parser.add_argument('--exp_id', default=0, type=int) 
 
 # Training arguments

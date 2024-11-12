@@ -92,22 +92,13 @@ def main():
         os.makedirs(args.split_output_dir, exist_ok=True)
         args.current_trainval_split = split[split_id]
 
-        result_file_path = os.path.join(args.split_output_dir, 'result.csv')
-        result_file = open(result_file_path, '+a')
-        result_file.write('feat_comb,auc_best,pr_best\n')
-        result_file.close()
-
-        for featcomb_key in args.feat_comb:
-            eval_dict = perform_one_featcomb(args, featcomb_key)
-            if eval_dict is None:
-                continue
-            result_file = open(result_file_path, '+a')
-            result_file.write(f'{featcomb_key},{eval_dict["auc_best"]},{eval_dict["pr_best"]}\n')
-            result_file.close()
+        eval_dict = run(args)
+        if eval_dict is None:
+            continue
 
 
-def perform_one_featcomb(args, featcomb_key):
-    args.current_output_dir = os.path.join(args.split_output_dir, args.exp_name + f'-{featcomb_key}')
+def run(args):
+    args.current_output_dir = os.path.join(args.split_output_dir, args.exp_name)
     FINISH_FLAG_FILE = f'{args.current_output_dir}/FINISH_FLAG'
     if os.path.exists(FINISH_FLAG_FILE):
         return None
@@ -123,8 +114,8 @@ def perform_one_featcomb(args, featcomb_key):
     val_lst = list(val_dict.keys())
     patient_labels = {**train_dict, **val_dict}
 
-    train_X, train_Y, _ = read_features(train_lst, patient_labels, args.feature_path_dict, comb_key=featcomb_key)
-    val_X, val_Y, _ = read_features(val_lst,  patient_labels, args.feature_path_dict, comb_key=featcomb_key)
+    train_X, train_Y, _ = read_features(train_lst, patient_labels, args.feature_path_dict)
+    val_X, val_Y, _ = read_features(val_lst,  patient_labels, args.feature_path_dict)
     
     pos_bags = train_X[train_Y == 1]
     neg_bags = train_X[train_Y == 0]
